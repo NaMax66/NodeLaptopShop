@@ -33,7 +33,28 @@ const server = http.createServer((req, res) => {
     }
     else if (pathName === '/laptop' && id < laptopData.length) {
         setHeader(200);
-        res.end(`This is the LAPTOP page for laptop ${id}`);
+
+        //NODE работает в одном потоке. Что выполнение кода не останавливалось мы вызываем асинхронный fs.readFile
+        fs.readFile(`${__dirname}/templates/template-laptop.html`, 'utf-8', (err, data) =>{
+            const laptop = laptopData[id];
+            
+            console.log(laptop);
+            
+            //указываем плейсхолдеры, которые мы обозначили в template-laptop.html
+            // /smth/g - значит заменить все в документе
+            //express - помогает сделать это проще
+            let output = data.replace(/{%PRODUCTNAME%}/g, laptop.productName);
+            output = output.replace(/{%IMAGE%}/g, laptop.image);
+            output = output.replace(/{%PRICE%}/g, laptop.price);
+            output = output.replace(/{%SCREEN%}/g, laptop.screen);
+            output = output.replace(/{%CPU%}/g, laptop.cpu);
+            output = output.replace(/{%STORAGE%}/g, laptop.storage);
+            output = output.replace(/{%RAM%}/g, laptop.ram);
+            output = output.replace(/{%DESCRIPTION%}/g, laptop.description);
+
+            res.end(output);
+        });
+
 
     }
     else {
